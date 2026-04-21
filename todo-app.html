@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List App</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #todoContainer { max-width: 600px; margin: auto; }
+        ul { list-style-type: none; padding: 0; }
+        li { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #ccc; }
+        .completed { text-decoration: line-through; color: grey; }
+    </style>
+</head>
+<body>
+    <div id="todoContainer">
+        <h1>To-Do List App</h1>
+        <input type="text" id="newTask" placeholder="Add a new task" />
+        <button id="addTaskBtn">Add Task</button>
+        <ul id="taskList"></ul>
+        <button id="clearCompletedBtn">Clear Completed Tasks</button>
+    </div>
+
+    <script>
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+        function renderTasks() {
+            const taskList = document.getElementById('taskList');
+            taskList.innerHTML = '';
+            tasks.forEach((task, index) => {
+                const li = document.createElement('li');
+                li.textContent = task.text;
+                if (task.completed) li.classList.add('completed');
+
+                const completeBtn = document.createElement('button');
+                completeBtn.textContent = task.completed ? 'Undo' : 'Complete';
+                completeBtn.onclick = () => {
+                    tasks[index].completed = !tasks[index].completed;
+                    saveTasks();
+                    renderTasks();
+                };
+
+                li.appendChild(completeBtn);
+                taskList.appendChild(li);
+            });
+        }
+
+        function saveTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        document.getElementById('addTaskBtn').addEventListener('click', () => {
+            const taskText = document.getElementById('newTask').value;
+            if (taskText) {
+                tasks.push({ text: taskText, completed: false });
+                saveTasks();
+                renderTasks();
+                document.getElementById('newTask').value = '';
+            }
+        });
+
+        document.getElementById('clearCompletedBtn').addEventListener('click', () => {
+            tasks = tasks.filter(task => !task.completed);
+            saveTasks();
+            renderTasks();
+        });
+
+        renderTasks();
+    </script>
+</body>
+</html>
